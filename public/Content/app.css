@@ -1,0 +1,207 @@
+/* Name: Chui Kwok Yuk Student 
+Number: 301246550 
+Last Modified Date: 4 Feb 2023 */
+
+/* custom css goes here */
+body {
+  background-color: #16151f;
+}
+
+.navbar {
+  background-color: #16151f;
+  max-width: 1300px;
+  /* padding-left: 20px; */
+  /* padding-right: 20px; */
+  margin: 0 auto;
+}
+
+i {
+  color: white;
+}
+
+nav-link {
+  color: white;
+}
+
+.container {
+  max-width: 1300px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin: 0 auto;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  flex: initial;
+  flex-direction: row;
+  box-sizing: border-box;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.hero {
+  position: relative;
+  margin-bottom: 30px;
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  background-color: #0a0a12;
+}
+
+.hero-inner::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  border-radius: 30px;
+  background-color: rgba(16, 17, 30, 0.6);
+}
+
+.hero-inner::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  border-radius: 30px;
+  /* background-color: rgba(16, 17, 30, 0.6); */
+}
+
+.hero-image {
+  padding-top: 50%;
+  min-height: 380px;
+  user-select: none;
+}
+
+.hero-image img {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* max-width: 100%; */
+}
+
+.hero-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  width: 100%;
+  max-width: 650px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 57px;
+  margin: 0 0 10px;
+  color: #fff;
+  /* margin-right: 20px; */
+}
+
+.hero-title2 {
+  font-size: 35px;
+  margin: 0 0 10px;
+  color: #fff;
+  /* margin-right: 20px; */
+}
+
+.hero-title3 {
+  font-size: 25px;
+  margin: 0 0 10px;
+  color: #fff;
+  /* margin-right: 20px; */
+}
+
+.hero-desc {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  /* margin-right: 20px; */
+}
+
+.col {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.col-12 {
+  width: 100%;
+}
+
+.logo {
+  max-width: 80px;
+}
+
+.btn-about-me {
+  padding: 0 1.8rem;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 50px;
+  background-color: #323a96;
+
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+  font: inherit;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  /* margin-top: 10px; */
+  margin-bottom: 10px;
+}
+
+.login-label {
+  color: white;
+  width: 100%;
+  /* display: block; */
+  text-align: left;
+}
+
+.row-business-create {
+  display: flex;
+  flex-direction: row;
+}
+
+.btn-about-me2 {
+  padding: 0 1.8rem;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 50px;
+  background-color: #323a96;
+
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+  font: inherit;
+  border: none;
+  border-radius: 5px;
+  outline: none;
+
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  margin-top: 0px;
+  /* margin-bottom: 10px; */
+}

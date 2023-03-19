@@ -1,0 +1,64 @@
+<%- include ../partials/header.ejs %> <%- include ../partials/main_nav.ejs %>
+
+<!-- Main Content -->
+<main class="container">
+  <div class="row">
+    <div class="col col-12">
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-image"></div>
+          <div class="hero-content">
+            <h1 class="hero-title"><%= title %></h1>
+            <form accept="/" method="post">
+              <!-- Username input -->
+              <label class="login-label" for="username">User Name</label>
+
+              <div class="form-outline mb-4">
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  class="form-control"
+                />
+              </div>
+
+              <!-- Email input -->
+              <label class="login-label" for="email">E-mail</label>
+
+              <div class="form-outline mb-4">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-control"
+                />
+              </div>
+
+              <!-- Password input -->
+              <label class="login-label" for="password">Password</label>
+              <div class="form-outline mb-4">
+                <input
+                  type="password"
+                  id="password"
+                  class="form-control"
+                  name="password"
+                />
+              </div>
+              <br />
+              <!-- Submit button -->
+              <button
+                style="background-color: #323a96"
+                type="submit"
+                class="btn btn-primary btn-block mb-4"
+              >
+                Sign in
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include ../partials/bottom_nav.ejs %> <%- include ../partials/footer.ejs %>

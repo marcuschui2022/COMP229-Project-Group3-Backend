@@ -1,0 +1,90 @@
+<%- include ../partials/header.ejs %> <%- include ../partials/main_nav.ejs %>
+
+<!-- Main Content -->
+<main class="container">
+  <div class="row">
+    <div class="col col-12">
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-image"></div>
+          <div class="hero-content">
+            <h1 class="hero-title"><%= title %></h1>
+            <form accept="/" method="post">
+              <!-- Username input -->
+              <label class="login-label" for="contactName">Contact Name </label>
+
+              <div class="form-outline mb-4">
+                <input
+                  type="text"
+                  id="contactName"
+                  name="contactName"
+                  class="form-control"
+                  value="<%= businessContact.contactName %>"
+                />
+              </div>
+
+              <!-- Email input -->
+              <label class="login-label" for="contactNumber"
+                >Contact Number</label
+              >
+
+              <div class="form-outline mb-4">
+                <input
+                  type="contactNumber"
+                  id="contactNumber"
+                  name="contactNumber"
+                  class="form-control"
+                  value="<%= businessContact.contactNumber %>"
+                />
+              </div>
+
+              <!-- Password input -->
+              <label class="login-label" for="emailAddress"
+                >Email Address</label
+              >
+              <div class="form-outline mb-4">
+                <input
+                  type="email"
+                  id="emailAddress"
+                  class="form-control"
+                  name="emailAddress"
+                  value="<%= businessContact.emailAddress %>"
+                />
+              </div>
+              <br />
+              <!-- Submit button -->
+              <div class="row-business-create">
+                <button
+                  style="
+                    background-color: #323a96;
+                    margin-top: 0rem;
+                    margin-right: 20px;
+                  "
+                  type="submit"
+                  class="btn btn-primary btn-block mb-4"
+                >
+                  Confirm Update
+                </button>
+                <a href="/business"
+                  ><button
+                    style="
+                      background-color: #323a96;
+                      margin-top: 0rem;
+                      padding-left: 10px;
+                    "
+                    type="button"
+                    class="btn btn-primary btn-block mb-4"
+                  >
+                    Cancel
+                  </button></a
+                >
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include ../partials/bottom_nav.ejs %> <%- include ../partials/footer.ejs %>

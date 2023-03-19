@@ -1,0 +1,56 @@
+<%- include ../partials/header.ejs %> <%- include ../partials/main_nav.ejs %>
+
+<!-- Main Content -->
+<main class="container">
+  <div class="row">
+    <h1 class="hero-title"><%= title %></h1>
+  </div>
+  <div class="row">
+    <a href="/business/create"
+      ><button class="btn-about-me" type="submit" name="subscribe">
+        <i class="fas fa-plus-circle"></i>
+        Create New Business Contact
+      </button></a
+    >
+  </div>
+  <div class="row">
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th scope="col">Contact Name</th>
+          <th scope="col">Contact Number</th>
+          <th scope="col">Email Address</th>
+          <th scope="col"></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for(var i=0; i < Object.keys(contacts).length; i++) { %>
+        <tr>
+          <td><%= contacts[i].contactName %></td>
+          <td><%= contacts[i].contactNumber %></td>
+          <td><%= contacts[i].emailAddress %></td>
+          <td>
+            <a href="/business/update/<%= contacts[i]._id %>">
+              <button class="btn-about-me" type="submit" name="subscribe">
+                <i class="fas fa-pencil-alt"></i>
+                Update
+              </button></a
+            >
+          </td>
+          <td>
+            <a href="/business/delete/<%= contacts[i]._id %>"
+              ><button class="btn-about-me" type="submit" name="subscribe">
+                <i class="fas fa-trash-alt"></i>
+                Delete
+              </button></a
+            >
+          </td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<%- include ../partials/bottom_nav.ejs %> <%- include ../partials/footer.ejs %>
