@@ -2,9 +2,9 @@ var express = require("express");
 const { IncidentTicket } = require("../models/incidentTicket");
 var router = express.Router();
 
-router.get("/", function (req, res, next) {
-  res.send("hi");
-});
+// router.get("/", function (req, res, next) {
+//   res.send("hi");
+// });
 
 /* GET Business Contacts List. */
 router.get("/tickets", function (req, res, next) {
