@@ -1,7 +1,28 @@
 var express = require("express");
 const { IncidentTicket } = require("../models/incidentTicket");
 var router = express.Router();
+var passport = require("passport");
+const jwt = require("jsonwebtoken");
+const JWTstrategy = require("passport-jwt").Strategy;
+const ExtractJWT = require("passport-jwt").ExtractJwt;
+require("dotenv").config();
 
+passport.use(
+  new JWTstrategy(
+    {
+      secretOrKey: process.env.JWTTOP_SECRET,
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    },
+    async (token, done) => {
+      // console.log(ExtractJWT.fromAuthHeaderAsBearerToken("secret_token"));
+      try {
+        return done(null, token.user);
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
+);
 // router.get("/", function (req, res, next) {
 //   res.send("hi");
 // });
@@ -20,21 +41,25 @@ router.get("/tickets/:id", function (req, res, next) {
     .then((data) => res.send(data));
 });
 
-router.delete("/tickets/:id", function (req, res, next) {
-  // if (!req.user) return res.send("auth erro");
+router.delete(
+  "/tickets/:id",
+  passport.authenticate("jwt", { session: false }),
+  function (req, res, next) {
+    // if (!req.user) return res.send("auth erro");
 
-  let id = req.params.id;
+    let id = req.params.id;
 
-  IncidentTicket.remove({ _id: id }, (err) => {
-    if (err) {
-      console.log(err);
-      res.send(err);
-    } else {
-      // refresh the business list
-      res.send("ok");
-    }
-  });
-});
+    IncidentTicket.remove({ _id: id }, (err) => {
+      if (err) {
+        console.log(err);
+        res.send(err);
+      } else {
+        // refresh the business list
+        res.send("ok");
+      }
+    });
+  }
+);
 
 // router.get("/create", function (req, res, next) {
 //   if (!req.user) return res.send("auth erro");
@@ -45,88 +70,96 @@ router.delete("/tickets/:id", function (req, res, next) {
 //   });
 // });
 
-router.post("/create-ticket", async function (req, res, next) {
-  //   if (!req.user) return res.send("auth erro");
+router.post(
+  "/create-ticket",
+  passport.authenticate("jwt", { session: false }),
+  async function (req, res, next) {
+    //   if (!req.user) return res.send("auth erro");
 
-  const {
-    incidentDescription,
-    incidentPriority,
-    customerInformation,
-    incidentNarrative,
-  } = req.body;
+    const {
+      incidentDescription,
+      incidentPriority,
+      customerInformation,
+      incidentNarrative,
+    } = req.body;
 
-  let recordNumber = await IncidentTicket.find()
-    .limit(1)
-    .sort({ $natural: -1 });
-  // console.log(recordNumber[0].recordNumber);
-  // return res.send(recordNumber);
-  if (recordNumber.length === 0) {
-    recordNumber = "130418-0000001";
-  } else {
-    recordNumber = recordNumber[0].recordNumber;
-    let mainNumber = Number(recordNumber.split("-")[0]);
-    let secondNumber = Number(recordNumber.split("-")[1]);
-
-    if (secondNumber < 9999999) {
-      secondNumber = secondNumber + 1;
+    let recordNumber = await IncidentTicket.find()
+      .limit(1)
+      .sort({ $natural: -1 });
+    // console.log(recordNumber[0].recordNumber);
+    // return res.send(recordNumber);
+    if (recordNumber.length === 0) {
+      recordNumber = "130418-0000001";
     } else {
-      mainNumber = mainNumber + 1;
-      secondNumber = 0;
+      recordNumber = recordNumber[0].recordNumber;
+      let mainNumber = Number(recordNumber.split("-")[0]);
+      let secondNumber = Number(recordNumber.split("-")[1]);
+
+      if (secondNumber < 9999999) {
+        secondNumber = secondNumber + 1;
+      } else {
+        mainNumber = mainNumber + 1;
+        secondNumber = 0;
+      }
+      recordNumber = `${mainNumber}-${leftPad(secondNumber, 7)}`;
     }
-    recordNumber = `${mainNumber}-${leftPad(secondNumber, 7)}`;
+
+    const newIncidentTicket = new IncidentTicket({
+      incidentDescription,
+      incidentPriority,
+      customerInformation,
+      incidentNarrative,
+      recordNumber,
+    });
+
+    await IncidentTicket.create(newIncidentTicket);
+
+    res.send("ok");
   }
+);
 
-  const newIncidentTicket = new IncidentTicket({
-    incidentDescription,
-    incidentPriority,
-    customerInformation,
-    incidentNarrative,
-    recordNumber,
-  });
+router.patch(
+  "/update-ticket/:id",
+  passport.authenticate("jwt", { session: false }),
+  function (req, res, next) {
+    // if (!req.user) return res.send("auth erro");
+    // return res.send("ok");
+    let id = req.params.id;
+    console.log(id);
+    const {
+      incidentDescription,
+      incidentPriority,
+      customerInformation,
+      incidentNarrative,
+    } = req.body;
 
-  await IncidentTicket.create(newIncidentTicket);
+    console.log({
+      incidentDescription,
+      incidentPriority,
+      customerInformation,
+      incidentNarrative,
+    });
 
-  res.send("ok");
-});
+    let updatedIncidentTicket = IncidentTicket({
+      _id: id,
+      incidentDescription,
+      incidentPriority,
+      customerInformation,
+      incidentNarrative,
+    });
 
-router.patch("/update-ticket/:id", function (req, res, next) {
-  // if (!req.user) return res.send("auth erro");
-  // return res.send("ok");
-  let id = req.params.id;
-  console.log(id);
-  const {
-    incidentDescription,
-    incidentPriority,
-    customerInformation,
-    incidentNarrative,
-  } = req.body;
-
-  console.log({
-    incidentDescription,
-    incidentPriority,
-    customerInformation,
-    incidentNarrative,
-  });
-
-  let updatedIncidentTicket = IncidentTicket({
-    _id: id,
-    incidentDescription,
-    incidentPriority,
-    customerInformation,
-    incidentNarrative,
-  });
-
-  IncidentTicket.updateOne({ _id: id }, updatedIncidentTicket, (err) => {
-    if (err) {
-      console.log(err);
-      res.send(err);
-    } else {
-      // refresh the business list
-      // res.redirect("/business");
-      res.send("ok");
-    }
-  });
-});
+    IncidentTicket.updateOne({ _id: id }, updatedIncidentTicket, (err) => {
+      if (err) {
+        console.log(err);
+        res.send(err);
+      } else {
+        // refresh the business list
+        // res.redirect("/business");
+        res.send("ok");
+      }
+    });
+  }
+);
 
 // router.get("/delete/:id", function (req, res, next) {
 //   if (!req.user) return res.send("auth erro");

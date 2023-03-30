@@ -1,54 +1,30 @@
 var express = require("express");
 var passport = require("passport");
-var LocalStrategy = require("passport-local");
 var crypto = require("crypto");
 var db = require("../config/db");
 const { User } = require("../models/user");
 var router = express.Router();
 
-/* Configure password authentication strategy.
- *
- * The `LocalStrategy` authenticates users by verifying a username and password.
- * The strategy parses the username and password from the request and calls the
- * `verify` function.
- *
- * The `verify` function queries the database for the user record and verifies
- * the password by hashing the password supplied by the user and comparing it to
- * the hashed password stored in the database.  If the comparison succeeds, the
- * user is authenticated; otherwise, not.
- */
-passport.use(
-  new LocalStrategy(function verify(username, password, cb) {
-    // check User is exists
-    User.findOne({ username }).then((user) => {
-      if (!user) {
-        return cb(null, false, {
-          message: "Incorrect username or password.",
-        });
-      }
+const jwt = require("jsonwebtoken");
+const JWTstrategy = require("passport-jwt").Strategy;
+const ExtractJWT = require("passport-jwt").ExtractJwt;
+require("dotenv").config();
 
-      crypto.pbkdf2(
-        password,
-        user.salt,
-        310000,
-        32,
-        "sha256",
-        function (err, hashedPassword) {
-          if (err) {
-            return cb(err);
-          }
-          if (user.password !== hashedPassword.toString("hex")) {
-            // when Incorrect username or password.
-            return cb(null, false, {
-              message: "Incorrect username or password.",
-            });
-          }
-          // console.log("right");
-          return cb(null, user);
-        }
-      );
-    });
-  })
+passport.use(
+  new JWTstrategy(
+    {
+      secretOrKey: process.env.JWTTOP_SECRET,
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    },
+    async (token, done) => {
+      // console.log(ExtractJWT.fromAuthHeaderAsBearerToken("secret_token"));
+      try {
+        return done(null, token.user);
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
 );
 
 /* Configure session management.
@@ -66,16 +42,16 @@ passport.use(
  * fetch todo records and render the user element in the navigation bar, that
  * information is stored in the session.
  */
-passport.serializeUser(function (user, cb) {
-  process.nextTick(function () {
-    cb(null, { id: user.id, username: user.username });
-  });
-});
-passport.deserializeUser(function (user, cb) {
-  process.nextTick(function () {
-    return cb(null, user);
-  });
-});
+// passport.serializeUser(function (user, cb) {
+//   process.nextTick(function () {
+//     cb(null, { id: user.id, username: user.username });
+//   });
+// });
+// passport.deserializeUser(function (user, cb) {
+//   process.nextTick(function () {
+//     return cb(null, user);
+//   });
+// });
 
 /* GET /login
  *
@@ -85,9 +61,9 @@ passport.deserializeUser(function (user, cb) {
  * username and password.  When the user submits the form, a request will be
  * sent to the `POST /login/password` route.
  */
-router.get("/login", function (req, res, next) {
-  res.render("auth/login", { title: "Login", user: req.user });
-});
+// router.get("/login", function (req, res, next) {
+//   res.render("auth/login", { title: "Login", user: req.user });
+// });
 
 /* POST /login
  *
@@ -105,13 +81,74 @@ router.get("/login", function (req, res, next) {
  * When authentication fails, the user will be re-prompted to login and shown
  * a message informing them of what went wrong.
  */
-router.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/business",
-    failureRedirect: "/auth/login",
-    failureMessage: true,
-  })
+// router.post(
+//   "/login",
+//   passport.authenticate("local", {
+//     successMessage: "business",
+
+//     // failureRedirect: "/auth/login",
+//     failureMessage: "true",
+//   })
+// );
+
+router.post("/login", function (req, res, next) {
+  // console.log(req.body);
+  const { username, password } = req.body;
+  return User.findOne({ username })
+    .then((user) => {
+      if (!user) {
+        return res.status(401).send("Incorrect username or password.");
+      }
+      // console.log(user);
+      crypto.pbkdf2(
+        password,
+        user.salt,
+        310000,
+        32,
+        "sha256",
+        function (err, hashedPassword) {
+          if (err) {
+            console.log(err);
+            return res.status(401).send("Incorrect username or password.");
+          }
+          if (user.password !== hashedPassword.toString("hex")) {
+            return res.status(401).send("Incorrect username or password.");
+          }
+          // return console.log("right");
+          const body = { username: user.username, email: user.email };
+          const token = jwt.sign({ user: body }, process.env.JWTTOP_SECRET);
+          console.log(body);
+          //  return res.json({user, token});
+          // res.status(200).send("good");
+          return res.json({ body, token });
+        }
+      );
+
+      console.log(user);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(401).send("Incorrect username or password.");
+    });
+  // .res.send("");
+});
+
+router.get("/profile", (req, res, next) => {
+  res.json({
+    message: "You made it to the secure route",
+    user: req.user,
+    token: req.query.secret_token,
+  });
+});
+
+router.get(
+  "/test",
+  // passport.authenticate("bearer", { session: false }),
+  passport.authenticate("jwt", { session: false }),
+  function (req, res, next) {
+    console.log(req.user.username);
+    res.send(`welcome ${req.user.username}`);
+  }
 );
 
 /* POST /signup
@@ -134,7 +171,8 @@ router.post("/signup", function (req, res, next) {
     "sha256",
     function (err, hashedPassword) {
       if (err) {
-        return next(err);
+        // return next(err);
+        res.send("err");
       }
 
       const newUser = new User({
@@ -147,45 +185,14 @@ router.post("/signup", function (req, res, next) {
       User.create(newUser)
         .then((user) => {
           console.log(user.username);
-          // res.send("done");
-          req.login(user, function (err) {
-            if (err) {
-              return next(err);
-            }
-            res.redirect("/");
-          });
+          res.status(202).send("done");
         })
         .catch((err) => {
           console.log(err);
-          res.redirect("/");
+          res.status(203).send("exists username or email");
         });
     }
   );
-});
-
-/* GET /signup
- *
- * This route prompts the user to sign up.
- *
- * The 'signup' view renders an HTML form, into which the user enters their
- * desired username and password.  When the user submits the form, a request
- * will be sent to the `POST /signup` route.
- */
-router.get("/signup", function (req, res, next) {
-  res.render("auth/signup", { title: "Signup" });
-});
-
-/* POST /logout
- *
- * This route logs the user out.
- */
-router.get("/logout", function (req, res, next) {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/");
-  });
 });
 
 module.exports = router;

@@ -3,12 +3,12 @@ require("dotenv").config();
 let createError = require("http-errors");
 let express = require("express");
 let path = require("path");
-let cookieParser = require("cookie-parser");
+// let cookieParser = require("cookie-parser");
 let logger = require("morgan");
 let favicon = require("serve-favicon");
-var passport = require("passport");
-var session = require("express-session");
-var MongoDBStore = require("connect-mongodb-session")(session);
+// var passport = require("passport");
+// var session = require("express-session");
+// var MongoDBStore = require("connect-mongodb-session")(session);
 // database setup
 let mongoose = require("mongoose");
 var cors = require("cors");
@@ -30,20 +30,20 @@ mongoDB.once("open", () => {
 
 // let indexRouter = require("./routes/index");
 // let usersRouter = require("./routes/users");
-// let authRouter = require("./routes/auth");
 // let businessRouter = require("./routes/business");
+let authRouter = require("./routes/auth");
 let incidentTicketRouter = require("./routes/incidentTicket");
 
 let app = express();
 
-var store = new MongoDBStore({
-  uri: process.env.MongoConnectionSessionString,
-  collection: "sessions",
-});
+// var store = new MongoDBStore({
+//   uri: process.env.MongoConnectionSessionString,
+//   collection: "sessions",
+// });
 
-store.on("error", function (error) {
-  console.log(error);
-});
+// store.on("error", function (error) {
+//   console.log(error);
+// });
 
 // view engine setup
 // app.set("views", path.join(__dirname, "views"));
@@ -52,12 +52,12 @@ app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+// app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, "public")));
 // app.use("/", express.static(path.join(__dirname, "dist")));
 
 // app.use(express.static(path.join(__dirname, "node_modules")));
-// app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
+app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 // app.use("/", express.static(path.join(__dirname, "dist")));
 
 // app.use((req, res, next) => {
@@ -99,7 +99,7 @@ app.use(cookieParser());
 
 // app.use("/", indexRouter);
 // app.use("/users", usersRouter);
-// app.use("/auth", authRouter);
+app.use("/api/auth", authRouter);
 // app.use("/business", businessRouter);
 app.use("/api/incident-ticket", incidentTicketRouter);
 
@@ -118,7 +118,7 @@ app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
-  console.log(err);
+  // console.log(err);
   // render the error page
   res.status(err.status || 500);
   // res.render("error", { title: "Error" });
