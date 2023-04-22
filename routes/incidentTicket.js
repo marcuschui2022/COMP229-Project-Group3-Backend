@@ -30,6 +30,13 @@ passport.use(
 /* GET Business Contacts List. */
 router.get("/tickets", function (req, res, next) {
   IncidentTicket.find()
+    .find({ status: { $ne: "Closed" } })
+    .sort({ $natural: -1 })
+    .then((data) => res.send(data));
+});
+
+router.get("/ticketsall", function (req, res, next) {
+  IncidentTicket.find()
     .sort({ $natural: -1 })
     .then((data) => res.send(data));
 });
@@ -112,7 +119,31 @@ router.post(
       recordNumber,
     });
 
-    await IncidentTicket.create(newIncidentTicket);
+    const newRecord = await IncidentTicket.create(newIncidentTicket);
+    console.log(newRecord);
+
+    // updateNewRecord
+    // const log = { updateBy: req.user.username };
+
+    let updatedIncidentTicket = IncidentTicket({
+      _id: newRecord._id,
+      logs: [
+        {
+          updateBy: req.user.username,
+          incidentDescription: newRecord.incidentDescription,
+          incidentPriority: newRecord.incidentPriority,
+          status: newRecord.newRecord,
+          customerInformation: newRecord.customerInformation,
+          incidentNarrative: newRecord.incidentNarrative,
+          updateAt: Date.now(),
+        },
+      ],
+    });
+
+    await IncidentTicket.updateOne(
+      { _id: newRecord._id },
+      updatedIncidentTicket
+    );
 
     res.send("ok");
   }
@@ -121,7 +152,7 @@ router.post(
 router.patch(
   "/update-ticket/:id",
   passport.authenticate("jwt", { session: false }),
-  function (req, res, next) {
+  async function (req, res, next) {
     // if (!req.user) return res.send("auth erro");
     // return res.send("ok");
     let id = req.params.id;
@@ -131,14 +162,20 @@ router.patch(
       incidentPriority,
       customerInformation,
       incidentNarrative,
+      status,
     } = req.body;
 
-    console.log({
-      incidentDescription,
-      incidentPriority,
-      customerInformation,
-      incidentNarrative,
-    });
+    const existStatus = await IncidentTicket.findById({ _id: id })
+      .sort({ $natural: -1 })
+      .then((data) => data.status);
+
+    if (existStatus === "Closed") {
+      res.send("existStatus closed");
+    }
+
+    const existRecord = await IncidentTicket.findById({ _id: id })
+      .sort({ $natural: -1 })
+      .then((data) => data.logs);
 
     let updatedIncidentTicket = IncidentTicket({
       _id: id,
@@ -146,6 +183,19 @@ router.patch(
       incidentPriority,
       customerInformation,
       incidentNarrative,
+      status,
+      logs: [
+        ...existRecord,
+        {
+          updateBy: req.user.username,
+          incidentDescription,
+          incidentPriority,
+          status,
+          customerInformation,
+          incidentNarrative,
+          updateAt: Date.now(),
+        },
+      ],
     });
 
     IncidentTicket.updateOne({ _id: id }, updatedIncidentTicket, (err) => {

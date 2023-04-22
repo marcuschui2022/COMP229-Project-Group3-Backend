@@ -115,7 +115,11 @@ router.post("/login", function (req, res, next) {
             return res.status(401).send("Incorrect username or password.");
           }
           // return console.log("right");
-          const body = { username: user.username, email: user.email };
+          const body = {
+            username: user.username,
+            email: user.email,
+            nickname: user.nickname,
+          };
           const token = jwt.sign({ user: body }, process.env.JWTTOP_SECRET);
           console.log(body);
           //  return res.json({user, token});
@@ -133,13 +137,49 @@ router.post("/login", function (req, res, next) {
   // .res.send("");
 });
 
-router.get("/profile", (req, res, next) => {
-  res.json({
-    message: "You made it to the secure route",
-    user: req.user,
-    token: req.query.secret_token,
-  });
-});
+router.get(
+  "/profile",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    return User.findOne({ username: req.user.username }).then((x) => {
+      res.send({ username: x.username, nickname: x.nickname, _id: x._id });
+    });
+    // res.json({
+    //   message: "You made it to the secure route",
+    //   user: req.user,
+    //   token: req.query.secret_token,
+    // });
+  }
+);
+router.patch(
+  "/profile",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    // console.log(req.body);
+    // console.log(`first`);
+
+    const id = req.body._id;
+    const nickname = req.body.nickname;
+
+    let updateUser = User({
+      _id: id,
+      nickname: nickname,
+      // updateAt: Date.now,
+    });
+    // console.log(`hello`);
+
+    // return res.send("ok");
+
+    User.updateOne({ _id: id }, updateUser, (err) => {
+      if (err) {
+        console.log(err);
+        res.send(err);
+      } else {
+        res.send("ok");
+      }
+    });
+  }
+);
 
 router.get(
   "/test",

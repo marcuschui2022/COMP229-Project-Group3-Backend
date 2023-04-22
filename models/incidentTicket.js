@@ -15,6 +15,11 @@ const IncidentTicket = mongoose.Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      required: true,
+      default: "New",
+    },
     incidentPriority: {
       type: String,
       // enum: priority,
@@ -31,6 +36,14 @@ const IncidentTicket = mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now,
+    },
+    updateAt: {
+      type: Date,
+      default: Date.now,
+    },
+    logs: {
+      type: [],
+      required: false,
     },
   },
   {

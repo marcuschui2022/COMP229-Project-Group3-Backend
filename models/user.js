@@ -36,6 +36,10 @@ const User = mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    nickname: {
+      type: String,
+      required: false,
+    },
   },
   {
     collection: "users",
